@@ -1,43 +1,42 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
 
-Class = require('../models/class');
-Student = require('../models/student');
-User = require('../models/user');
+const router = express.Router();
 
+// const Class = require('../models/class');
+// const User = require('../models/user');
+const Student = require('../models/student');
 
-router.get('/classes', ensureAuthenticated, function(req, res, next) {
-  Student.getStudentByUsername(req.user.username, function(err, student){
-    if(err){
+function ensureAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  res.redirect('/');
+}
+
+router.get('/classes', ensureAuthenticated, (req, res) => {
+  Student.getStudentByUsername(req.user.username, (err, student) => {
+    if (err) {
       console.log(err);
       res.send(err);
     } else {
-      res.render('students/classes', { "student": student});
+      res.render('students/classes', { student });
     }
   });
 });
 
-router.post('/classes/register', function(req, res){
-    info = [];
-    info['student_username'] = req.user.username;
-    info['class_id'] = req.body.class_id;
-    info['class_title'] = req.body.class_title;
+router.post('/classes/register', (req, res) => {
+  const info = [];
+  info.student_username = req.user.username;
+  info.class_id = req.body.class_id;
+  info.class_title = req.body.class_title;
 
-    Student.register(info, function(err, student){
-        if(err) throw err;
-        console.log(student);
-    });
+  Student.register(info, (err, student) => {
+    if (err) throw err;
+    console.log(student);
+  });
 
-    req.flash('succes', 'You are now registered');
-    res.redirect('/students/classes');
-
+  req.flash('success', 'You are now registered');
+  res.redirect('/students/classes');
 });
-
-function ensureAuthenticated(req, res, next){
-  if (req.isAuthenticated()){
-      return next();
-  }
-  res.redirect('/');
-}
 
 module.exports = router;

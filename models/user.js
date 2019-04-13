@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const async = require('async');
 
 // User Schema
 const userSchema = mongoose.Schema({
@@ -33,34 +32,34 @@ module.exports.getUserByUsername = (username, callback) => {
 };
 
 // Save Student
-module.exports.saveStudent = function(newUser, newStudent, callback) {
+module.exports.saveStudent = (newUser, newStudent, callback) => {
   bcrypt.hash(newUser.password, 10, (err, hash) => {
     if (err) throw err;
 
     newUser.password = hash;
     console.log('Student is being saved');
 
-    // async.parallel([newUser.save, newStudent.save], callback);
     newUser.save();
     newStudent.save();
     callback();
-    // Promise.all(newUser.save, newStudent.save, callback);
   });
 };
 
 // Save Instructor
-module.exports.saveInstructor = function(newUser, newInstructor, callback) {
+module.exports.saveInstructor = (newUser, newInstructor, callback) => {
   bcrypt.hash(newUser.password, 10, (err, hash) => {
     if (err) throw err;
 
     newUser.password = hash;
     console.log('Instructor is being saved');
-    async.parallel([newUser.save, newInstructor.save], callback);
+    newUser.save();
+    newInstructor.save();
+    callback();
   });
 };
 
 // comparePassword
-module.exports.comparePassword = function(candidatePassword, hash, callback) {
+module.exports.comparePassword = (candidatePassword, hash, callback) => {
   bcrypt.compare(candidatePassword, hash, (err, isMatch) => {
     if (err) {
       throw err;
